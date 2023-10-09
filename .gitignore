@@ -15,11 +15,14 @@ db.sqlite3
 # Build #
 build
 dist
-package.egg-info/
+pystryde.egg-info/
 
 # setuptools_scm generated  #
-package/version.py 
+pystryde/version.py
 
 # Development #
 .ipynb_checkpoints/
 
+# Figures
+notebooks/StrydeTraining_26_09_2023/Figs/*png
+notebooks/StrydeTraining_26_09_2023/Figs/*eps

@@ -1,22 +1,14 @@
-![LOGO](https://github.com/DIG-Kaust/Project_Template/blob/master/logo.png)
+![LOGO](https://github.com/DIG-Kaust/StrydeProjects/blob/master/logo.png)
 
-Reproducible material for **XXX -
-Ravasi M., Author M., Author C.** submitted to XXX.
-
+This repository contains all the routines that our group as created to manipulate and visualize SEG-Y data produced by STRYDE SeismicQC software.
+Moreover, it contains all the notebooks created to perform basic analysis of the data acquired over time.
 
 ## Project structure
 This repository is organized as follows:
 
-* :open_file_folder: **package**: python library containing routines for ....;
-* :open_file_folder: **data**: folder containing data (or instructions on how to retrieve the data
-* :open_file_folder: **notebooks**: set of jupyter notebooks reproducing the experiments in the paper (see below for more details);
-* :open_file_folder: **scripts**: set of python scripts used to run multiple experiments ...
-
-## Notebooks
-The following notebooks are provided:
-
-- :orange_book: ``X1.ipynb``: notebook performing ...;
-- :orange_book: ``X2.ipynb``: notebook performing ...
+* :open_file_folder: **pystride**: python library containing basic routines for data manipulation and visualization;
+* :open_file_folder: **data**: folder containing links to the datasets acquired by our group (and used in the notebooks);
+* :open_file_folder: **notebooks**: set of jupyter notebooks performing basic analysis of the different datasets;
 
 
 ## Getting started :space_invader: :robot:
@@ -37,13 +29,5 @@ pip install -e .
 
 Remember to always activate the environment by typing:
 ```
-conda activate my_env
+conda activate strydeenv
 ```
-
-Finally, to run tests simply type:
-```
-pytest
-```
-
-**Disclaimer:** All experiments have been carried on a Intel(R) Xeon(R) CPU @ 2.10GHz equipped with a single NVIDIA GEForce RTX 3090 GPU. Different environment 
-configurations may be required for different combinations of workstation and GPU.

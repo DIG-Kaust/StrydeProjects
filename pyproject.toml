@@ -1,0 +1,38 @@
+[build-system]
+requires = [
+    "setuptools >= 65",
+    "setuptools_scm[toml]",
+    "wheel",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pystryde"
+authors = [
+    {name = "Matteo Ravasi", email = "matteo.ravasi@kaust.edu.sa"},
+]
+description = "Routines to manipulate and visualize SEG-Y data produced by STRYDE SeismicQC software"
+readme = "README.md"
+requires-python = ">=3.8"
+keywords = ["seismic", "data manipulation", "visualization"]
+classifiers = [
+        "Intended Audience :: Science/Research",
+        "Natural Language :: English",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+    ]
+dependencies = [
+        "numpy >= 1.22.0",
+        "scipy >= 1.4.0",
+        "pylops >= 2.0.0",
+        "matplotlib",
+        "segyio",
+        "astropy",
+    ]
+
+dynamic = ["version"]
+
+[tool.setuptools.packages]
+find = {}
+
