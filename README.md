@@ -1,4 +1,4 @@
-![LOGO](https://github.com/DIG-Kaust/StrydeProjects/blob/master/logo.png)
+![LOGO](https://github.com/DIG-Kaust/StrydeProjects/blob/main/logo.png)
 
 This repository contains all the routines that our group as created to manipulate and visualize SEG-Y data produced by STRYDE SeismicQC software.
 Moreover, it contains all the notebooks created to perform basic analysis of the data acquired over time.
