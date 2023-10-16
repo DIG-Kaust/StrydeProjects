@@ -12,7 +12,7 @@ dependencies:
   - jupyter
   - pylops
   - tqdm
-  - astopy
+  - astropy
   - pip:
     - setuptools_scm
     - segyio
