@@ -75,10 +75,11 @@ class strydecont():
         with segyio.open(self.file, ignore_geometry=True) as f:
             self.data = segyio.collect(f.trace[:])
 
-    def plotrecord(self, clip=None, cmap='gray', title=None, figsize=(10, 10)):
+    def plotrecord(self, jt=1, clip=None, cmap='gray', title=None, figsize=(10, 10)):
         clip = np.max(np.abs(self.data)) if clip is None else clip
         fig, ax = plt.subplots(1, 1, figsize=figsize)
-        ax.imshow(self.data.T, cmap=cmap, vmin=-clip, vmax=clip, extent=(0, self.ntraces, self.t[-1], self.t[0]))
+        ax.imshow(self.data[:, ::jt].T, cmap=cmap, vmin=-clip, vmax=clip,
+                  extent=(0, self.ntraces, self.t[-1], self.t[0]))
         ax.axis('tight')
         ax.set_xlabel('60sec sequence number')
         ax.set_ylabel('T [s]')
@@ -87,9 +88,9 @@ class strydecont():
 
 
 class strydeconts():
-    def __init__(self, directory):
+    def __init__(self, directory, filereg='CR_*'):
         self.directory = directory
-        self.files = glob.glob(os.path.join(directory, 'CR_*'))
+        self.files = glob.glob(os.path.join(directory, filereg))
         self.nfiles = len(self.files)
 
     def interpret(self):
@@ -195,11 +196,11 @@ class strydeconts():
             ax.set_xlabel('X [m]')
             ax.set_ylabel('Z [m]')
 
-    def plotrecord(self, utctime_start=None, utctime_end=None, nsamples=None, clip=None, cmap='gray', title=None, figsize=(10, 10)):
+    def plotrecord(self, utctime_start=None, utctime_end=None, nsamples=None, jt=1, clip=None, cmap='gray', title=None, figsize=(10, 10)):
         data, tlims = self.extract(utctime_start, utctime_end, nsamples)
         clip = np.max(np.abs(self.data)) if clip is None else clip
         fig, ax = plt.subplots(1, 1, figsize=figsize)
-        ax.imshow(data, cmap=cmap, vmin=-clip, vmax=clip, extent=(0, self.nrecs, tlims[-1], tlims[0]))
+        ax.imshow(data[::jt], cmap=cmap, vmin=-clip, vmax=clip, extent=(0, self.nrecs, tlims[-1], tlims[0]))
         ax.axis('tight')
         ax.set_xlabel('Receivers')
         ax.set_ylabel('T [s]')
