@@ -2,8 +2,7 @@
 
 This repository contains all the routines that our group has created to manipulate and visualize SEG-Y data produced by STRYDE SeismicQC software.
 
-Moreover, all the notebooks created to perform basic analysis of the data acquired over time are also available for others to get started with the
-associated data.
+Moreover, all the notebooks created to perform basic analysis of the data acquired over time are also available for others to get started with the associated data.
 
 ## Project structure
 This repository is organized as follows:
@@ -33,3 +32,5 @@ Remember to always activate the environment by typing:
 ```
 conda activate strydeenv
 ```
+
+**DISCLAIMER**: All datasets are acquired by KAUST for teaching and research purposes. As such, they may not follow standard/manufacturer recommended operational procedures for source and receiver operations. Similarly, the related processing of the dataset is solely produced by KAUST.
