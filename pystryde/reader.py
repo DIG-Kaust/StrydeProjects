@@ -47,10 +47,22 @@ def bin_to_utc(head):
 
 
 class strydecont():
+    """Continuous recording
+
+    Container for continuous recording of a single Stryde node
+    
+    Parameters
+    ----------
+    file : :obj:`str`
+        Filename
+
+    """
     def __init__(self, file):
         self.file = file
 
     def interpret(self):
+        """Interpret segy file
+        """
         with segyio.open(self.file, ignore_geometry=True) as f:
             self.recidx = f.attributes(185)[:]
             self.recpoint = np.array([int(bin_to_float(bin(recpoint))) for recpoint in f.attributes(181)[:]])
@@ -72,10 +84,35 @@ class strydecont():
             self.dt = self.t[1] - self.t[0]
             
     def getrecord(self):
+        """Read data
+        """ 
         with segyio.open(self.file, ignore_geometry=True) as f:
             self.data = segyio.collect(f.trace[:])
 
     def plotrecord(self, jt=1, clip=None, cmap='gray', title=None, figsize=(10, 10)):
+        """Display data recording
+
+        Parameters
+        ----------
+        jt : :obj:`int`
+            Jump in time axis
+        clip : :obj:`float`, optional
+            Max value to use in colorscale
+        cmap : :obj:`str`, optional
+            Colormap
+        title : :obj:`str`, optional
+            Figure title (if `None`, use filename)
+        figsize : :obj:`tuple`, optional
+            Figure size
+
+        Returns
+        -------
+        fig : :obj:`plt.figure`
+            Figure handle
+        ax : :obj:`plt.axes`, optional
+            Axes handle
+
+        """
         clip = np.max(np.abs(self.data)) if clip is None else clip
         fig, ax = plt.subplots(1, 1, figsize=figsize)
         ax.imshow(self.data[:, ::jt].T, cmap=cmap, vmin=-clip, vmax=clip,
@@ -88,13 +125,31 @@ class strydecont():
 
 
 class strydeconts():
+    """Continuous recording for entire survey
+
+    Container for continuous recording of a collection of Stryde nodes
+    
+    Parameters
+    ----------
+    directory : :obj:`str`
+        Directory where files are stored
+    filereg : :obj:`str`, optional
+        Regexp to select files in directory
+
+    """
     def __init__(self, directory, filereg='CR_*'):
         self.directory = directory
         self.files = glob.glob(os.path.join(directory, filereg))
         self.nfiles = len(self.files)
 
     def interpret(self):
-       # Define common parameters
+        """Interpret segy files
+
+        Interpret collection of files and extract common information (e.g., t)
+        and file-wise information (e.g., receiver coordinates)
+
+        """
+        # Define common parameters
         with segyio.open(self.files[0], ignore_geometry=True) as f:
 
             # scaling factor
@@ -133,6 +188,18 @@ class strydeconts():
         self.recpoint_axis = np.sort(np.unique(self.recpoint))
 
     def getrecords(self, utctime_start=None, utctime_end=None):
+        """Read data
+        
+        Reas portion of data from files, for all receivers within a given time window
+
+        Parameters
+        ----------
+        utctime_start : :obj:`datatime.date`, optional
+            Start time in UTC time zone
+        utctime_end : :obj:`datatime.date`, optional
+            End time in UTC time zone
+
+        """ 
         if utctime_start is None:
             # find maximum utctime start time from records and use it as origin
             utctime_start = max([self.utctimes[i][0] for i in range(self.nfiles)])
@@ -163,6 +230,21 @@ class strydeconts():
                           np.where(self.recpoint[ifile] == self.recpoint_axis)[0][0]] = segyio.collect(f.trace[:])[it_starts[ifile]:it_ends[ifile]]
 
     def extract(self, utctime_start=None, utctime_end=None, nsamples=None):
+        """Extract data
+        
+        Extract portion of the locally stored data (already read from file by the `getrecords` method)
+
+        Parameters
+        ----------
+        utctime_start : :obj:`datatime.date`, optional
+            Start time in UTC time zone
+        utctime_end : :obj:`datatime.date`, optional
+            End time in UTC time zone
+        nsamples : :obj:`int`, optional
+            Number of samples (will overwrite `utctime_end` and allow selecting time 
+            windows which are smaller than multiples of 60mins)
+
+        """ 
         if utctime_start is None:
             iutc_start = 0
         else:
@@ -181,6 +263,27 @@ class strydeconts():
         return data, tlims
 
     def plotgeom(self, coords=True, local=False, figsize=(10, 10)):
+        """Display geometry
+        
+        Quick display of geometry of acquisition in global or local coordinates
+
+        Parameters
+        ----------
+        coords : :obj:`bool`, optional
+            Display line-point (`False`) or physical coordinates (`True`)
+        local : :obj:`bool`, optional
+            Use local (`True`) or global (`False`) coordinates
+        figsize : :obj:`tuple`, optional
+            Figure size
+
+        Returns
+        -------
+        fig : :obj:`plt.figure`
+            Figure handle
+        ax : :obj:`plt.axes`, optional
+            Axes handle
+
+        """ 
         fig, ax = plt.subplots(1, 1, figsize=figsize)
         if not coords:
             ax.scatter(self.recline, self.recpoint, c='b', s=6)
@@ -197,7 +300,40 @@ class strydeconts():
             ax.set_ylabel('Z [m]')
         return fig, ax
 
-    def plotrecord(self, utctime_start=None, utctime_end=None, nsamples=None, jt=1, clip=None, cmap='gray', title=None, figsize=(10, 10)):
+    def plotrecord(self, utctime_start=None, utctime_end=None, nsamples=None, jt=1, 
+                   clip=None, cmap='gray', title=None, figsize=(10, 10)):
+        """Display recording
+        
+        Quick display of recording
+
+        Parameters
+        ----------
+        utctime_start : :obj:`datatime.date`, optional
+            Start time in UTC time zone
+        utctime_end : :obj:`datatime.date`, optional
+            End time in UTC time zone
+        nsamples : :obj:`int`, optional
+            Number of samples (will overwrite `utctime_end` and allow selecting time 
+            windows which are smaller than multiples of 60mins)
+        jt : :obj:`int`
+            Jump in time axis
+        clip : :obj:`float`, optional
+            Max value to use in colorscale
+        cmap : :obj:`str`, optional
+            Colormap
+        title : :obj:`str`, optional
+            Figure title (if `None`, use filename)
+        figsize : :obj:`tuple`, optional
+            Figure size
+
+        Returns
+        -------
+        fig : :obj:`plt.figure`
+            Figure handle
+        ax : :obj:`plt.axes`, optional
+            Axes handle
+
+        """ 
         data, tlims = self.extract(utctime_start, utctime_end, nsamples)
         clip = np.max(np.abs(self.data)) if clip is None else clip
         fig, ax = plt.subplots(1, 1, figsize=figsize)
@@ -210,10 +346,22 @@ class strydeconts():
 
 
 class strydeshot():
+    """Shot recording
+
+    Container for shot-gather recording
+    
+    Parameters
+    ----------
+    file : :obj:`str`
+        Filename
+
+    """
     def __init__(self, file):
         self.file = file
     
     def interpret(self):
+        """Interpret segy file
+        """
         with segyio.open(self.file, ignore_geometry=True) as f:
             self.srcidx = f.attributes(197)[:]
             self.srcline = np.array([int(bin_to_float(bin(srcline))) for srcline in f.attributes(189)[:]])
@@ -238,10 +386,38 @@ class strydeshot():
             self.dt = self.t[1] - self.t[0]
             
     def getshot(self):
+        """Read data
+        """ 
         with segyio.open(self.file, ignore_geometry=True) as f:
             self.data = segyio.collect(f.trace[:])
 
-    def filter(self, nfilt, fmin, fmax, dt, plotflag=False, itmax_plot=-1, figsize=(10, 10), title=None, **kwargs_plot):
+    def filter(self, nfilt, fmin, fmax, dt, plotflag=False, itmax_plot=-1, 
+               figsize=(10, 10), title=None, **kwargs_plot):
+        """Filter data
+
+        Apply band-pass filter to data
+
+        Parameters
+        ----------
+        nfilt : :obj:`int`
+            Size of filter
+        fmin : :obj:`float`
+            Minimum frequency
+        fmax : :obj:`float`
+            Maximum frequency
+        dt : :obj:`float`
+            Time sampling
+        plotflag : :obj:`bool`, optional
+            Plotting flag
+        itmax_plot : :obj:`int`, optional
+            Index of maximum sample to plot
+    
+        Returns
+        -------
+        datafilt : :obj:`numpy.ndarray`
+            Filtered data of size `nx x nt`
+
+        """ 
         datafilt = filterdata(nfilt, fmin, fmax, dt, self.data)[-1]
         if plotflag:
             fig, ax = plt.subplots(1, 1, figsize=figsize)
@@ -253,6 +429,27 @@ class strydeshot():
         return datafilt
 
     def plotgeom(self, coords=True, local=False, figsize=(10, 10)):
+        """Display geometry
+        
+        Quick display of geometry of acquisition in global or local coordinates
+
+        Parameters
+        ----------
+        coords : :obj:`bool`, optional
+            Display line-point (`False`) or physical coordinates (`True`)
+        local : :obj:`bool`, optional
+            Use local (`True`) or global (`False`) coordinates
+        figsize : :obj:`tuple`, optional
+            Figure size
+
+        Returns
+        -------
+        fig : :obj:`plt.figure`
+            Figure handle
+        ax : :obj:`plt.axes`, optional
+            Axes handle
+
+        """ 
         fig, ax = plt.subplots(1, 1, figsize=figsize)
         if not coords:
             ax.scatter(self.srcline, self.srcpoint, c='r', s=6)
@@ -273,6 +470,31 @@ class strydeshot():
         return fig, ax
         
     def plotshot(self, clip=None, itmax=None, cmap='gray', title=None, figsize=(10, 10)):
+        """Display shot gather
+        
+        Quick display of shot gather
+
+        Parameters
+        ----------
+        clip : :obj:`float`, optional
+            Max value to use in colorscale
+        itmax : :obj:`int`, optional
+            Index of las time sample to display
+        cmap : :obj:`str`, optional
+            Colormap
+        title : :obj:`str`, optional
+            Figure title (if `None`, use filename)
+        figsize : :obj:`tuple`, optional
+            Figure size
+
+        Returns
+        -------
+        fig : :obj:`plt.figure`
+            Figure handle
+        ax : :obj:`plt.axes`, optional
+            Axes handle
+
+        """ 
         clip = np.max(np.abs(self.data)) if clip is None else clip
         itmax = self.data.shape[1] if itmax is None else itmax
         fig, ax = plt.subplots(1, 1, figsize=figsize)
@@ -285,12 +507,29 @@ class strydeshot():
 
 
 class strydeshots(strydeshot):
-    def __init__(self, directory):
+    """Shot recordings
+
+    Container for shot-gather recordings from all sources in a survey
+    
+    Parameters
+    ----------
+    directory : :obj:`str`
+        Directory where files are stored
+    filereg : :obj:`str`, optional
+        Regexp to select files in directory
+    """
+    def __init__(self, directory, filereg='S_*'):
         self.directory = directory
-        self.files = glob.glob(os.path.join(directory, 'S_*'))
+        self.files = glob.glob(os.path.join(directory, filereg))
         self.nfiles = len(self.files)
         
     def interpret(self):
+        """Interpret segy files
+
+        Interpret collection of files and extract common information (e.g., t, recx, recy, 
+        recpoint, recline) and file-wise information (e.g., source coordinates)
+
+        """
         # Define receiver grid (assumed to be fixed throughout the survey)
         with segyio.open(self.files[0], ignore_geometry=True) as f:
             self.recidx = f.attributes(185)[:]
@@ -335,6 +574,11 @@ class strydeshots(strydeshot):
         self.srcpoint_axis = np.sort(np.unique(self.srcpoint))
     
     def getshot(self):
+        """Read data
+        
+        Read entire survey ordered in shot-gather mode
+
+        """ 
         self.data = np.zeros((len(self.srcidx_axis), len(self.srcline_axis), len(self.srcpoint_axis), self.nr, self.nt))
         for ifile, file in enumerate(self.files):
             with segyio.open(file, ignore_geometry=True) as f:

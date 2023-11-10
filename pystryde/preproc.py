@@ -8,6 +8,36 @@ from pystryde.visual import wiggletracecomb
 
 
 def filterdata(nfilt, fmin, fmax, dt, inp):
+    """Filter data
+    
+    Apply Butterworth  band-pass filter to data
+    
+    Parameters
+    ----------
+    nfilt : :obj:`int`
+        Size of filter
+    fmin : :obj:`float`
+        Minimum frequency
+    fmax : :obj:`float`
+        Maximum frequency
+    dt : :obj:`float`
+        Time sampling
+    inp : :obj:`numpy.ndarray`
+        Data of size `nx x nt`
+        
+    Returns
+    -------
+    b : :obj:`numpy.ndarray`
+        Filter numerator coefficients
+    b : :obj:`numpy.ndarray`
+        Filter denominator coefficients
+    sos : :obj:`numpy.ndarray`
+        Filter sos 
+    filtered : :obj:`numpy.ndarray`
+        Filtered data of size `nx x nt`
+    
+    """
+
     if fmin is None:
         b, a = butter(nfilt, fmax, 'low', analog=True)
         sos = butter(nfilt, fmax, 'low', fs=1/dt, output='sos')
@@ -19,10 +49,30 @@ def filterdata(nfilt, fmin, fmax, dt, inp):
 
 
 def averagespectrum(data, dt):
+    """Average spectrum
+    
+    Compute average spectrum over traces
+    
+    Parameters
+    ----------
+    data : :obj:`numpy.ndarray`
+        Data of size `nt x nx`
+    dt : :obj:`float`
+        Time sampling
+        
+    Returns
+    -------
+    Dave : :obj:`numpy.ndarray`
+        Average spectrum of size `nt`
+    f : :obj:`numpy.ndarray`
+        Frequency axis
+    
+    """
     nfft = data.shape[0]
     DATA = np.fft.rfft(data, axis=0, n=nfft)
     f = np.fft.rfftfreq(nfft, dt)
-    return np.mean(np.abs(DATA), axis=1), f
+    Dave = np.mean(np.abs(DATA), axis=1)
+    return Dave, f
 
 
 def parkdispersion(data, dx, dt, cmin, cmax, dc, fmax):
@@ -85,6 +135,34 @@ def parkdispersion(data, dx, dt, cmin, cmax, dc, fmax):
 
 
 def aligndata(data, irec, t, tlims, plotflag=False):
+    """Align data by cross-correlation
+
+    Align shot gathers generated multiple times at the same source
+    by finding the best shift by cross-correlation that aligns traces
+    at a given receiver location
+    
+    Parameters
+    ----------
+    data : :obj:`numpy.ndarray`
+        Data of size `ns x nr x nt`
+    irec : :obj:`int`
+        Index of receiver to select traces for alignment
+    t : :obj:`numpy.ndarray`
+        Time axis
+    tlims : :obj:`tuple`
+        Indices of first and last time samples used to extract 
+        portion of data for cross-correlation
+    plotflag : :obj:`bool`, optional
+        Plotting flag
+
+    Returns
+    -------
+    datashift : :obj:`numpy.ndarray`
+        Shifted data of size `ns x nr x nt`
+    figs : :obj:`tuple`, optional
+        Figure handles (when ``plotflag=True``)
+
+    """
     nshots_src, nr, nt = data.shape
     itzero = tlims[1]-tlims[0] - 1
 

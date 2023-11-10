@@ -1,5 +1,6 @@
 from matplotlib.colors import LinearSegmentedColormap
 
+
 # Define custom colormaps
 cmap_yrbwpetrel = \
     LinearSegmentedColormap.from_list('name', ['yellow', 'red', 'black',

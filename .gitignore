@@ -26,3 +26,5 @@ pystryde/version.py
 # Figures
 notebooks/StrydeTraining_26_09_2023/Figs/*png
 notebooks/StrydeTraining_26_09_2023/Figs/*eps
+notebooks/SEGBootcamp_07_11_2023/Figs/*png
+notebooks/SEGBootcamp_07_11_2023/Figs/*eps
