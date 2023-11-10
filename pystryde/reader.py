@@ -195,6 +195,7 @@ class strydeconts():
                 ax.scatter((self.recx - ox) * self.sc, (self.recy - oy) * self.sc, c='b', s=6)
             ax.set_xlabel('X [m]')
             ax.set_ylabel('Z [m]')
+        return fig, ax
 
     def plotrecord(self, utctime_start=None, utctime_end=None, nsamples=None, jt=1, clip=None, cmap='gray', title=None, figsize=(10, 10)):
         data, tlims = self.extract(utctime_start, utctime_end, nsamples)
@@ -269,7 +270,8 @@ class strydeshot():
                 ax.scatter((self.recx - ox) * self.sc, (self.recy - oy) * self.sc, c='b', s=6)
             ax.set_xlabel('X [m]')
             ax.set_ylabel('Z [m]')
-
+        return fig, ax
+        
     def plotshot(self, clip=None, itmax=None, cmap='gray', title=None, figsize=(10, 10)):
         clip = np.max(np.abs(self.data)) if clip is None else clip
         itmax = self.data.shape[1] if itmax is None else itmax
