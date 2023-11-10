@@ -37,7 +37,6 @@ def filterdata(nfilt, fmin, fmax, dt, inp):
         Filtered data of size `nx x nt`
     
     """
-
     if fmin is None:
         b, a = butter(nfilt, fmax, 'low', analog=True)
         sos = butter(nfilt, fmax, 'low', fs=1/dt, output='sos')
