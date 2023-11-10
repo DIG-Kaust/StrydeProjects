@@ -24,6 +24,7 @@ def averagespectrum(data, dt):
     f = np.fft.rfftfreq(nfft, dt)
     return np.mean(np.abs(DATA), axis=1), f
 
+
 def parkdispersion(data, dx, dt, cmin, cmax, dc, fmax):
     """Dispersion panel
     
