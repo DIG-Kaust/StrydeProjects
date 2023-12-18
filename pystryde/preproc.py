@@ -133,7 +133,7 @@ def parkdispersion(data, dx, dt, cmin, cmax, dc, fmax):
     return f[:fmax_idx], c, disp
 
 
-def aligndata(data, irec, t, tlims, plotflag=False):
+def aligndata(data, irec, t, tlims, ishotmaster=0, otherdata=None, plotflag=False):
     """Align data by cross-correlation
 
     Align shot gathers generated multiple times at the same source
@@ -151,13 +151,18 @@ def aligndata(data, irec, t, tlims, plotflag=False):
     tlims : :obj:`tuple`
         Indices of first and last time samples used to extract 
         portion of data for cross-correlation
+    ishotmaster : :obj:`int`, optional
+        Index of shot to use as master for correlation
+    otherdata : :obj:`numpy.ndarray`, optional
+        Additional data of size `ns x nr x nt` to align based on the shifts
+        found with data
     plotflag : :obj:`bool`, optional
         Plotting flag
 
     Returns
     -------
-    datashift : :obj:`numpy.ndarray`
-        Shifted data of size `ns x nr x nt`
+    datashift : :obj:`numpy.ndarray` or :obj:`tuple`
+        Shifted data of size `ns x nr x nt` or tuple of shifted data of size `ns x nr x nt` (if ``otherdata`` is not None)
     figs : :obj:`tuple`, optional
         Figure handles (when ``plotflag=True``)
 
@@ -167,14 +172,20 @@ def aligndata(data, irec, t, tlims, plotflag=False):
 
     # compute correlations
     tcorr = np.hstack((-t[:tlims[1]-tlims[0]][::-1], t[:tlims[1]-tlims[0]][1:]))
-    corr = np.vstack([correlate(data[0, irec, tlims[0]:tlims[1]], data[i, irec, tlims[0]:tlims[1]], mode='full') for i in range(nshots_src)])
+    corr = np.vstack([correlate(data[ishotmaster, irec, tlims[0]:tlims[1]], data[i, irec, tlims[0]:tlims[1]], mode='full') for i in range(nshots_src)])
     print('Indices of max aligment:', np.argmax(corr, axis=1))
 
     Sop = Shift(dims=(nshots_src*nr, nt), shift=np.repeat(np.argmax(corr, axis=1)-itzero, nr), axis=-1, real=True)
     datashift = (Sop @ data.reshape(nshots_src * nr, nt)).reshape(nshots_src, nr, nt)
 
-    corr = np.vstack([correlate(datashift[0, irec, tlims[0]:tlims[1]], datashift[i, irec, tlims[0]:tlims[1]], mode='full') for i in range(nshots_src)])
+    corr = np.vstack([correlate(datashift[ishotmaster, irec, tlims[0]:tlims[1]], datashift[i, irec, tlims[0]:tlims[1]], mode='full') for i in range(nshots_src)])
     print('Indices of max aligment after shifts:', np.argmax(corr, axis=1))
+
+    if otherdata is not None:
+        otherdatashift = (Sop @ otherdata.reshape(nshots_src * nr, nt)).reshape(nshots_src, nr, nt)
+
+        othercorr = np.vstack([correlate(otherdatashift[ishotmaster, irec, tlims[0]:tlims[1]], datashift[i, irec, tlims[0]:tlims[1]], mode='full') for i in range(nshots_src)])
+        print('Indices of max aligment after shifts (for otherdata):', np.argmax(othercorr, axis=1))
 
     if plotflag:
         fig, ax = plt.subplots(1, 1, figsize=(12, 5))
@@ -210,6 +221,9 @@ def aligndata(data, irec, t, tlims, plotflag=False):
         ax.plot(t[tlims[0]:tlims[1]], np.mean(datashift[:, irec, tlims[0]:tlims[1]], axis=0), 'k', label='Stack')
         ax.set_title(f'Shifted stacked data (at rec={irec})')
         ax.legend()
+
+    if otherdata is not None:
+        datashift = (datashift, otherdatashift)
 
     return datashift, (fig, fig1, fig2, fig3, fig4, fig5, fig6) if plotflag else None
 

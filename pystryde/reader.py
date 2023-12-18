@@ -452,19 +452,19 @@ class strydeshot():
         """ 
         fig, ax = plt.subplots(1, 1, figsize=figsize)
         if not coords:
-            ax.scatter(self.srcline, self.srcpoint, c='r', s=6)
             ax.scatter(self.recline, self.recpoint, c='b', s=6)
+            ax.scatter(self.srcline, self.srcpoint, c='r', s=6)
             ax.set_xlabel('Src/Rec Line')
             ax.set_ylabel('Src/Rec Point')
         else:
             if not local:
-                ax.scatter(self.srcx * self.sc, self.srcy * self.sc, c='r', s=6)
                 ax.scatter(self.recx * self.sc, self.recy * self.sc, c='b', s=6)
+                ax.scatter(self.srcx * self.sc, self.srcy * self.sc, c='r', s=9)
             else:
                 ox = min(np.min(self.srcx), np.min(self.recx)) 
                 oy = min(np.min(self.srcy), np.min(self.recy))
-                ax.scatter((self.srcx - ox) * self.sc, (self.srcy - oy) * self.sc, c='r', s=6)
                 ax.scatter((self.recx - ox) * self.sc, (self.recy - oy) * self.sc, c='b', s=6)
+                ax.scatter((self.srcx - ox) * self.sc, (self.srcy - oy) * self.sc, c='r', s=9)
             ax.set_xlabel('X [m]')
             ax.set_ylabel('Z [m]')
         return fig, ax
