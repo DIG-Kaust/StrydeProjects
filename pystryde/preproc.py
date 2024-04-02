@@ -4,30 +4,8 @@ import matplotlib.pyplot as plt
 
 from scipy.signal import butter, sosfiltfilt, correlate, filtfilt
 from pylops.signalprocessing import Shift
+from pystryde.utils import mag2db, db2mag, customplot
 from pystryde.visual import wiggletracecomb
-
-
-def mag2db(x):
-    """Magnitude to Decibel"""
-    return 20 * np.log10(x)
-
-
-def db2mag(x):
-    """Decibel to Magnitude"""
-    return 10 ** (x / 20)
-
-
-def customplot(ax, x, y, color, plottype):
-    """Customized plotting
-
-    Add plot to a given axis based on user-defined plottype
-    """
-    if plottype == plt.plot:
-        ax.plot(x, y, color)
-    elif plottype == plt.semilogy:
-        ax.semilogy(x, y, color)
-    elif plottype == plt.loglog:
-        ax.loglog(x, y, color)
 
 
 def filterdata(nfilt, fmin, fmax, dt, inp):

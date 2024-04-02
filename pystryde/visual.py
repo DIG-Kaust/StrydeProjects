@@ -1,16 +1,22 @@
 import numpy as np
+import matplotlib.pyplot as plt
+
+from scipy.signal import stft
+from pystryde.utils import mag2db
 
 
 def _wiggletrace(ax, tz, trace, center=0, cpos='r', cneg='b'):
-    """Plot a seismic wiggle trace onto an axis
+    """Seismic wiggle
+    
+    Plot a seismic wiggle trace onto an axis
 
     Parameters
     ----------
-    ax : :obj:`plt.axes`, optional
-         Axes handle
-    tz : :obj:`np.ndarray `
+    ax : :obj:`plt.axes`
+        Axes handle
+    tz : :obj:`np.ndarray`
         Depth (or time) axis
-    trace : :obj:`np.ndarray `
+    trace : :obj:`np.ndarray`
         Wiggle trace
     center : :obj:`float`, optional
         Center of x-axis where to switch color
@@ -35,17 +41,19 @@ def _wiggletrace(ax, tz, trace, center=0, cpos='r', cneg='b'):
 
 def wiggletracecomb(ax, tz, x, traces, scaling=None,
                     cpos='r', cneg='b'):
-    """Plot a comb of seismic wiggle traces onto an axis
+    """Seismic wiggles
+    
+    Plot a comb of seismic wiggle traces onto an axis
 
     Parameters
     ----------
-    ax : :obj:`plt.axes`, optional
-         Axes handle
-    tz : :obj:`np.ndarray `
+    ax : :obj:`plt.axes`
+        Axes handle
+    tz : :obj:`np.ndarray`
         Depth (or time) axis
-    x : :obj:`np.ndarray `
+    x : :obj:`np.ndarray`
         Lateral axis
-    traces : :obj:`np.ndarray `
+    traces : :obj:`np.ndarray`
         Wiggle traces
     scaling : :obj:`float`, optional
         Scaling to apply to each trace
@@ -79,4 +87,70 @@ def wiggletracecomb(ax, tz, x, traces, scaling=None,
     ax.set_xticks(x)
     ax.set_xticklabels([str(xx) for xx in x])
 
+    return ax
+
+
+def spectrogram(ax, data, dt, twin, overlap=0.5, nfft=None, db=True, clim=None, cmap='jet', tlims=None):
+    """Spectrogram
+
+    Compute and display spectrogram using :func:`scipy.signal.stft`
+
+    Parameters
+    ----------
+    ax : :obj:`plt.axes`, optional
+        Axes handle
+    data : :obj:`np.ndarray`
+        Trace to compute stft
+    dt : :obj:`float`
+        Time sampling
+    twin : :obj:`float`
+        Time extent of a single window
+    overlap : :obj:`float`, optional
+        Percentage of overlap between consecutive windows
+    nfft : :obj:`int`, optional
+        Number of samples in fft (if ``None``, use same samples of time window)
+    db : :obj:`bool`, optional
+        Display power spectrogram in normal or dB scale
+    clim : :obj:`tuple`, optional
+        Limits of colorscale
+    cmap : :obj:`tuple`, optional
+        Colormap
+    tlims : :obj:`tuple`, optional
+        Limits of time axis
+
+    Returns
+    -------
+    ax : :obj:`plt.axes`, optional
+         Axes handle
+    
+    """
+
+    # Compute window size
+    ntwin = int(np.round(twin / dt))
+    if nfft is None:
+        nfft = ntwin
+    overlap = int(ntwin * overlap)
+
+    # Compute stft
+    f_stft, t_stft, data_stft = stft(data, 1. / dt, nperseg=ntwin, noverlap=overlap, nfft=nfft)
+
+    if db:
+        data_stft = mag2db(np.abs(data_stft)+1e-10)
+    else:
+        data_stft = np.abs(data_stft) ** 2
+    if clim is None:
+        cmin, cmax = data_stft.min(), data_stft.max()
+    else:
+        cmin, cmax = clim
+    im = ax.imshow(data_stft, vmin=cmax, vmax=cmin, cmap=cmap, 
+                   extent=(tlims[0] if tlims is not None else 0, 
+                           tlims[1] if tlims is not None else data.size * dt, 
+                           f_stft[-1], f_stft[0]))
+    ax.set_title('STFT Magnitude')
+    ax.set_ylabel('Frequency [Hz]')
+    ax.set_xlabel('Time [sec]')
+    ax.axis('tight')
+    ax.invert_yaxis()
+    plt.colorbar(im, ax=ax)
+    
     return ax

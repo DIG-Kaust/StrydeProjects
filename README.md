@@ -12,7 +12,13 @@ This repository is organized as follows:
 * :open_file_folder: **notebooks**: set of jupyter notebooks performing basic analysis of the different datasets;
 
 
-## Getting started :space_invader: :robot:
+## Getting started for users :space_invader: :robot:
+To install pystride, simply type: of the results, we suggest using the `environment.yml` file when creating an environment.
+```
+pip install git+https://github.com/DIG-Kaust/StrydeProjects.git@main
+```
+
+## Getting started for devs :space_invader: :robot:
 To ensure reproducibility of the results, we suggest using the `environment.yml` file when creating an environment.
 
 Simply run:
