@@ -30,7 +30,7 @@ def filterdata(nfilt, fmin, fmax, dt, inp):
     -------
     b : :obj:`numpy.ndarray`
         Filter numerator coefficients
-    b : :obj:`numpy.ndarray`
+    a : :obj:`numpy.ndarray`
         Filter denominator coefficients
     sos : :obj:`numpy.ndarray`
         Filter sos 
