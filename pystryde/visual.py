@@ -146,6 +146,8 @@ def spectrogram(ax, data, dt, twin, overlap=0.5, nfft=None, db=True, clim=None, 
                    extent=(tlims[0] if tlims is not None else 0, 
                            tlims[1] if tlims is not None else data.size * dt, 
                            f_stft[-1], f_stft[0]))
+    ax.tick_params(axis='both', which='major', labelsize=10)
+
     ax.set_title('STFT Magnitude')
     ax.set_ylabel('Frequency [Hz]')
     ax.set_xlabel('Time [sec]')
